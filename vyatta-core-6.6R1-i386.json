@@ -7,7 +7,7 @@
     "iso_checksum": "c722dd6c013e0f7777202a828ad280cf",
     "iso_checksum_type": "md5",
     "output_directory": "output-vyatta-core-6.6R1-i386",
-    "vm_name": "packer-vyatta-code-6.6R1-i386",
+    "vm_name": "packer-vyatta-core-6.6R1-i386",
     "disk_size": 4096,
     "boot_wait": "5s",
     "boot_command": [
