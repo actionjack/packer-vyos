@@ -1,3 +1,4 @@
 .project
 packer_cache/
 *.box
+.vagrant/
