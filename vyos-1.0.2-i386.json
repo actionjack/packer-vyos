@@ -1,0 +1,81 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "headless": true,
+    "guest_os_type": "Debian",
+    "iso_url": "http://mirror.vyos.net/iso/release/1.0.2/vyos-1.0.2-i386.iso",
+    "iso_checksum": "f60c0ccc118dd9b635c7aa4c161f1f02450445fc",
+    "iso_checksum_type": "sha1",
+    "output_directory": "output-vyos-1.0.2-i386",
+    "vm_name": "packer-vyos-1.0.2-i386",
+    "disk_size": 4096,
+    "boot_wait": "5s",
+    "boot_command": [
+      "<enter><wait10><wait10>",
+      "vyos<enter><wait>",
+      "vyos<enter><wait>",
+      "install system<enter><wait>",
+      "<enter><wait>",
+      "<enter><wait>",
+      "<enter><wait>",
+      "Yes<enter><wait>",
+      "<enter><wait10><wait10><wait10><wait10><wait10>",
+      "<enter><wait>",
+      "vagrant<enter><wait>",
+      "vagrant<enter><wait>",
+      "<enter><wait5>",
+      "reboot<enter><wait>",
+      "Yes<enter><wait10><wait10><wait10>",
+      "vyos<enter><wait>",
+      "vagrant<enter><wait>",
+      "configure<enter><wait>",
+      "set interfaces ethernet eth0 address dhcp<enter><wait>",
+      "set system login user vagrant authentication plaintext-password vagrant<enter><wait>",
+      "set system login user vagrant level admin<enter><wait>",
+      "set service ssh<enter><wait>",
+      "commit<enter><wait>",
+      "save<enter><wait>",
+      "exit<enter><wait>",
+      "exit<enter><wait>",
+      "vagrant<enter><wait>",
+      "vagrant<enter><wait>",
+      "configure<enter><wait>",
+      "delete system login user vyos<enter><wait>",
+      "commit<enter><wait>",
+      "save<enter><wait>",
+      "exit<enter><wait>",
+      "exit<enter><wait>"
+    ],
+    "shutdown_command": "sudo poweroff",
+    "ssh_wait_timeout": "20m",
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "vboxmanage": [
+      ["modifyvm", "{{.Name}}", "--memory", "512"],
+      ["modifyvm", "{{.Name}}", "--cpus", "1"]
+    ]
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "environment_vars": [ 
+      "CHEF_VERSION=11.10.4-1",
+      "PUPPET_VERSION=3.4.3-1puppetlabs1",
+      "ARCH=i686",
+      "PROC1=i386",
+      "PROC2=586",
+      "vyatta_repo_debian=true"],
+    "scripts": [
+      "scripts/base.sh",
+      "scripts/puppet.sh",
+      "scripts/chef.sh",
+      "scripts/virtualbox.sh",
+      "scripts/vagrant.sh",
+      "scripts/cleanup.sh",
+      "scripts/minimize.sh"
+    ]
+  }],
+  "post-processors": [{
+    "type": "vagrant",
+    "output": "vyos-1.0.2-i386.box"
+  }]
+}

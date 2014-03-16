@@ -1,11 +1,11 @@
-packer-vyatta
-=============
+packer-vyos
+===========
 
-A packer template for Vyatta, to use with puppet-vyatta.
+Packer templates for VyOS and Vyatta, for use with puppet-vyatta.
 
-Simply added puppet 3.4.3, reduced disk size.
+ * Puppet 3.4.3
+ * Chef 11.10.4-1
+ * VirtualBox Guest Additions 4.3.8
+ * Credentials vagrant:vagrant
 
-Inspired by:
-
-	https://github.com/kaorimatz/packer-templates.git
-
+Templates inspired by [kaorimatz](https://github.com/kaorimatz/packer-templates.git) -- *Thanks for sharing!*

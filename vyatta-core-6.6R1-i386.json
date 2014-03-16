@@ -1,0 +1,82 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "headless": true,
+    "guest_os_type": "Debian",
+    "iso_url": "http://packages.vyatta.com/vyatta/iso/VC6.6/vyatta-livecd_VC6.6R1_i386.iso",
+    "iso_checksum": "c722dd6c013e0f7777202a828ad280cf",
+    "iso_checksum_type": "md5",
+    "output_directory": "output-vyatta-core-6.6R1-i386",
+    "vm_name": "packer-vyatta-code-6.6R1-i386",
+    "disk_size": 4096,
+    "boot_wait": "5s",
+    "boot_command": [
+      "<enter><wait10><wait10>",
+      "vyatta<enter><wait>",
+      "vyatta<enter><wait>",
+      "install system<enter><wait>",
+      "<enter><wait>",
+      "<enter><wait>",
+      "<enter><wait>",
+      "Yes<enter><wait>",
+      "<enter><wait10><wait10><wait10><wait10><wait10>",
+      "<enter><wait5>",
+      "vyatta<enter><wait>",
+      "vyatta<enter><wait>",
+      "<enter><wait5>",
+      "reboot<enter><wait>",
+      "Yes<enter><wait10><wait10><wait10>",
+      "vyatta<enter><wait>",
+      "vyatta<enter><wait>",
+      "configure<enter><wait>",
+      "set interfaces ethernet eth0 address dhcp<enter><wait>",
+      "set system login user vagrant authentication plaintext-password vagrant<enter><wait>",
+      "set system login user vagrant level admin<enter><wait>",
+      "set service ssh<enter><wait>",
+      "commit<enter><wait>",
+      "save<enter><wait>",
+      "exit<enter><wait>",
+      "exit<enter><wait>",
+      "vagrant<enter><wait>",
+      "vagrant<enter><wait>",
+      "configure<enter><wait>",
+      "delete system login user vyatta<enter><wait>",
+      "commit<enter><wait>",
+      "save<enter><wait>",
+      "exit<enter><wait>",
+      "exit<enter><wait>"
+    ],
+    "shutdown_command": "sudo poweroff",
+    "ssh_wait_timeout": "20m",
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "vboxmanage": [
+      ["modifyvm", "{{.Name}}", "--memory", "512"],
+      ["modifyvm", "{{.Name}}", "--cpus", "1"]
+    ]
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "environment_vars": [ 
+      "CHEF_VERSION=11.10.4-1",
+      "PUPPET_VERSION=3.4.3-1puppetlabs1",
+      "ARCH=x86_64",
+      "PROC1=i386",
+      "PROC2=586",
+      "vyatta_repo_dev=true",
+      "vyatta_repo_debian=true"],
+    "scripts": [
+      "scripts/base.sh",
+      "scripts/puppet.sh",
+      "scripts/chef.sh",
+      "scripts/virtualbox.sh",
+      "scripts/vagrant.sh",
+      "scripts/cleanup.sh",
+      "scripts/minimize.sh"
+    ]
+  }],
+  "post-processors": [{
+    "type": "vagrant",
+    "output": "vyatta-core-6.6R1-i386.box"
+  }]
+}
