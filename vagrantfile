@@ -1,0 +1,21 @@
+# vim: set ai ft=ruby ts=2 sw=2 et!:
+
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  
+  software=[ 'vyos-1.0.2', 'vyatta-core-6.6R1' ]
+  arch=['amd64','i386']
+  box_digit = 11
+  software.each do |s|
+    arch.each do |a|
+      config.vm.define "#{s}-#{a}" do |box|
+        box.vm.box = "#{s}-#{a}"
+        box.vm.box_url = "#{s}-#{a}.box"
+        box.vm.guest = :debian
+        box.vm.network :private_network, ip: "172.16.24.#{box_digit}" 
+        box.vm.network :public_network,  ip: "172.16.25.#{box_digit}", bridge: 'eth0'
+        box_digit = box_digit.next
+      end
+    end
+  end
+end
