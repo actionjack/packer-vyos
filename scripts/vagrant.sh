@@ -17,3 +17,11 @@ $WRAPPER set system login user vagrant authentication public-keys vagrant key "$
 $WRAPPER commit
 $WRAPPER save
 $WRAPPER end
+
+# change vagrant id to 1000
+sudo sed -i 's/:x:1001/:x:1000/' /etc/passwd
+sudo chown 1000:users /home/vagrant/ -R
+
+# create vagrant group for user vagrant
+sudo groupadd vagrant -g 1000
+sudo usermod -a -G vagrant vagrant
