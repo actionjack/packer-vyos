@@ -1,14 +1,24 @@
 {
+  "variables": {
+    "vm_name": "vyos-1.0.2-amd64",
+    "box_name" : "vyos-1.0.2-amd64.box", 
+    "box_desc" : "VyOS 1.0.2 amd64",
+    "iso_url": "http://mirror.vyos.net/iso/release/1.0.2/vyos-1.0.2-amd64.iso",
+    "iso_checksum": "8ce6c49edd2d9c8d907dc6354748a9c85f587ca0",
+    "iso_checksum_type": "sha1",
+    "disk_size": 4096,
+    "shutdown_command": "sudo poweroff"
+  },
+  "description": "{{user `box_desc`}}",
   "builders": [{
     "type": "virtualbox-iso",
     "headless": true,
     "guest_os_type": "Debian_64",
-    "iso_url": "http://mirror.vyos.net/iso/release/1.0.2/vyos-1.0.2-amd64.iso",
-    "iso_checksum": "8ce6c49edd2d9c8d907dc6354748a9c85f587ca0",
-    "iso_checksum_type": "sha1",
-    "output_directory": "output-vyos-1.0.2-amd64",
-    "vm_name": "packer-vyos-1.0.2-amd64",
-    "disk_size": 4096,
+    "vm_name": "{{user `vm_name`}}",
+    "iso_url": "{{user `iso_url`}}",
+    "iso_checksum": "{{user `iso_checksum`}}",
+    "iso_checksum_type": "{{user `iso_checksum_type`}}",
+    "disk_size": "{{user `disk_size`}}",
     "boot_wait": "5s",
     "boot_command": [
       "<enter><wait10><wait10>",
@@ -46,7 +56,7 @@
       "exit<enter><wait>",
       "exit<enter><wait>"
     ],
-    "shutdown_command": "sudo poweroff",
+    "shutdown_command": "{{user `shutdown_command`}}",
     "ssh_wait_timeout": "20m",
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
@@ -54,7 +64,65 @@
       ["modifyvm", "{{.Name}}", "--memory", "512"],
       ["modifyvm", "{{.Name}}", "--cpus", "1"]
     ]
-  }],
+  }, {
+    "type": "qemu",
+    "accelerator": "kvm",
+    "headless": false,
+    "vm_name": "{{user `vm_name`}}",
+    "iso_url": "{{user `iso_url`}}",
+    "iso_checksum": "{{user `iso_checksum`}}",
+    "iso_checksum_type": "{{user `iso_checksum_type`}}",
+    "disk_size": "{{user `disk_size`}}",
+    "ssh_wait_timeout": "30s",
+    "disk_size": "{{user `disk_size`}}",
+    "format": "qcow2",
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "net_device": "virtio-net",
+    "disk_interface": "virtio",
+    "boot_command": [
+      "<enter><wait10><wait10>",
+      "vyos<enter><wait>",
+      "vyos<enter><wait>",
+      "install system<enter><wait>",
+      "<enter><wait>",
+      "<enter><wait>",
+      "<enter><wait>",
+      "Yes<enter><wait>",
+      "<enter><wait10><wait10><wait10><wait10><wait10><wait10><wait10><wait10>",
+      "<enter><wait>",
+      "vagrant<enter><wait>",
+      "vagrant<enter><wait>",
+      "<enter><wait5>",
+      "reboot<enter><wait5>",
+      "Yes<enter><wait10><wait10><wait10><wait10>",
+      "vyos<enter><wait>",
+      "vagrant<enter><wait>",
+      "configure<enter><wait>",
+      "set interfaces ethernet eth0 address dhcp<enter><wait>",
+      "set system login user vagrant authentication plaintext-password vagrant<enter><wait>",
+      "set system login user vagrant level admin<enter><wait>",
+      "set service ssh<enter><wait>",
+      "commit<enter><wait>",
+      "save<enter><wait>",
+      "exit<enter><wait>",
+      "exit<enter><wait>",
+      "vagrant<enter><wait>",
+      "vagrant<enter><wait>",
+      "configure<enter><wait>",
+      "delete system login user vyos<enter><wait>",
+      "commit<enter><wait>",
+      "save<enter><wait>",
+      "exit<enter><wait>",
+      "sudo shutdown -P -h 0<enter><wait>"
+    ],
+    "shutdown_command": "{{user `shutdown_command`}}",
+    "qemuargs": [ 
+      [ "-m", "512m" ],
+      [ "-boot", "c" ]
+    ]
+  }
+  ],
   "provisioners": [{
     "type": "shell",
     "environment_vars": [ 
@@ -68,14 +136,25 @@
       "scripts/base.sh",
       "scripts/puppet.sh",
       "scripts/chef.sh",
-      "scripts/virtualbox.sh",
-      "scripts/vagrant.sh",
+      "scripts/vagrant.sh"
+    ]
+  }, {
+    "type": "shell",
+    "scripts": [
+      "scripts/virtualbox.sh"
+    ],
+    "only": ["virtualbox-iso"]
+  }, {
+    "type": "shell",
+    "scripts": [
       "scripts/cleanup.sh",
       "scripts/minimize.sh"
     ]
-  }],
+  }
+  ],
   "post-processors": [{
     "type": "vagrant",
-    "output": "vyos-1.0.2-amd64.box"
+    "output" : "{{user `box_name`}}",
+    "only": ["virtualbox-iso"]
   }]
 }
